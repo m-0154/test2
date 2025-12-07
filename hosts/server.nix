@@ -78,7 +78,7 @@ in
   users.users.me = {
     isNormalUser = true;
     description = "me";
-    extraGroups = [ "wheel" "systemd-journal" "docker" "media" ];
+    extraGroups = [ "wheel" "systemd-journal" "docker" "media" "video" "render" ];
     openssh.authorizedKeys.keys = sshKeys;
   };
 
@@ -109,22 +109,43 @@ in
     docker
     docker-compose
     
-    # Useful for native apps
-    ffmpeg         # Media transcoding
+    # Media tools
+    ffmpeg-full    # Full ffmpeg with all codecs
     mediainfo      # Media file analysis
+    intel-gpu-tools # For debugging Intel GPU (intel_gpu_top)
   ];
+
+  # ============================================
+  # INTEL HARDWARE ACCELERATION (QSV for Skylake)
+  # ============================================
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver    # VAAPI driver for Intel (Broadwell+)
+      intel-vaapi-driver    # Older VAAPI driver (fallback)
+      vaapiVdpau           # VDPAU backend for VAAPI
+      libvdpau-va-gl       # VDPAU driver with OpenGL/VAAPI
+    ];
+  };
+
+  # ============================================
+  # JELLYFIN (Media Server with Hardware Transcoding)
+  # ============================================
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;
+    user = "jellyfin";
+    group = "media";
+  };
+  
+  # Add jellyfin user to video/render groups for GPU access
+  users.users.jellyfin = {
+    extraGroups = [ "video" "render" ];
+  };
 
   # ============================================
   # NATIVE NIXOS SERVICES (Examples - uncomment to enable)
   # ============================================
-  
-  # --- JELLYFIN (Media Server) ---
-  # services.jellyfin = {
-  #   enable = true;
-  #   openFirewall = true;
-  #   user = "jellyfin";
-  #   group = "media";
-  # };
   
   # --- SONARR (TV Show Management) ---
   # services.sonarr = {
