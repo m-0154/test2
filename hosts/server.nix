@@ -137,6 +137,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      User = "root";
     };
     
     script = ''
