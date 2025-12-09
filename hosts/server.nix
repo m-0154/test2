@@ -79,6 +79,9 @@ in
   # Root user - required for Coolify server management
   users.users.root = {
     openssh.authorizedKeys.keys = sshKeys;
+    # Ensure root has a proper home directory for SSH
+    home = "/root";
+    createHome = true;
   };
 
   # Regular user
@@ -129,7 +132,7 @@ in
     wants = [ "network-online.target" ];
     requires = [ "docker.service" ];
     wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.docker pkgs.curl pkgs.openssl pkgs.gnused pkgs.coreutils ];
+    path = [ pkgs.docker pkgs.curl pkgs.openssl pkgs.gnused pkgs.coreutils pkgs.openssh ];
     
     serviceConfig = {
       Type = "oneshot";
@@ -156,6 +159,9 @@ in
       # Step 2: Generate SSH key for Coolify
       if [ ! -f "/data/coolify/ssh/keys/id.root@host.docker.internal" ]; then
         echo "Generating SSH key..."
+        # Ensure /root/.ssh exists
+        mkdir -p /root/.ssh
+        chmod 700 /root/.ssh
         ssh-keygen -f /data/coolify/ssh/keys/id.root@host.docker.internal -t ed25519 -N "" -C root@coolify
         cat /data/coolify/ssh/keys/id.root@host.docker.internal.pub >> /root/.ssh/authorized_keys
         chmod 600 /root/.ssh/authorized_keys
