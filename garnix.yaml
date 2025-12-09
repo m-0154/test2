@@ -5,4 +5,4 @@ servers:
   - configuration: server
     deployment:
       type: on-branch
-      branch: main
+      branch: coolify
