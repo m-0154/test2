@@ -8,8 +8,8 @@ in
 {
   # Garnix server setup
   garnix.server.enable = true;
-  garnix.server.persistence.enable = true;
-  garnix.server.persistence.name = "coolify";
+  #garnix.server.persistence.enable = true;
+#  garnix.server.persistence.name = "coolify";
 
   # Recommended: set system.stateVersion for reproducible behaviour
   system.stateVersion = "24.05";
